@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 import endpoints
 import pandas as pd
 from dotenv import dotenv_values
@@ -11,6 +12,29 @@ try:
     os.mkdir(f"output")
 except:
     pass # already exists
+
+try:
+    # If we are in the middle of another download
+    with open("output/usage.json", "r") as f:
+        usage = json.load(f)
+except:
+    # if this is the first time we are running this script
+    now = datetime.datetime.now()
+    usage = {"dt": str(now), "req": 0}
+
+    with open("output/usage.json", "w") as f:
+        json.dump(usage, f)
+
+last_request = datetime.datetime.strptime(usage["dt"], "%Y-%m-%d %H:%M:%S.%f")
+total_requests = usage["req"]
+
+# if last_request was more than 24 hours ago, reset the counter
+if (datetime.datetime.now() - last_request).total_seconds() > 86400:
+    total_requests = 0
+else:
+    quit()
+    
+print(1)
 
 # get a list of all tickers
 exchange_code = "US"
