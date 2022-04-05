@@ -13,8 +13,14 @@ pip install -r requirements.txt
 
 Next, get an API key from [eodhistoricaldata.com](eodhistoricaldata.com).
 
-Then create a `.env` file, and add the following line:
+Finally, create a `.env` file, and add the following line:
 
 ```
 API_KEY = "PASTE_YOUR_KEY_HERE"
 ```
+
+## Caveats
+
+This tool requires a paid subscription to [eodhistoricaldata.com](eodhistoricaldata.com).
+
+Additionally, this tool will only retrieve stocks listed in the United States. 
