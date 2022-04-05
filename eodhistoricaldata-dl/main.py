@@ -7,6 +7,7 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 api_key = config["API_KEY"]
+api_limit = 10000
 
 try:
     os.mkdir(f"output")
@@ -20,7 +21,7 @@ try:
     
     last_request = datetime.datetime.strptime(usage["dt"], "%Y-%m-%d %H:%M:%S.%f")
     
-    if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] > 10000:
+    if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] > api_limit:
         print("Already downloaded today")
         exit()
 except:
@@ -67,7 +68,7 @@ for index, row in tracker.iterrows():
     except:
         pass # already exists
     
-    if row["retrieved_fundamentals"] == 0 and usage["count"] < 10000:
+    if row["retrieved_fundamentals"] == 0 and usage["count"] < api_limit:
         fundamentals = endpoints.get_fundamentals(ticker, api_key)
 
         with open(f"output/{index}/fundamentals.json", "w") as f:
@@ -81,7 +82,7 @@ for index, row in tracker.iterrows():
             json.dump(usage, f)
 
     
-    if row["retrieved_price"] == 0 and usage["count"] < 10000:
+    if row["retrieved_price"] == 0 and usage["count"] < api_limit:
         eod_prices = endpoints.get_eod_prices(ticker, api_key)
         eod_prices.to_csv(f"output/{index}/prices.csv", index=False)
 
