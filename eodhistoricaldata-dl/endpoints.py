@@ -12,7 +12,7 @@ def get_all_tickers(exchange_code, api_key):
 
     df = pd.read_csv( io.StringIO(r.text) )
 
-    df.to_csv("tickers.csv")
+    df.to_csv("output/tickers.csv", index=False)
 
 exchange_code = "US"
 get_all_tickers(exchange_code, api_key)
