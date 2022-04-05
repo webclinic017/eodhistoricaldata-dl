@@ -15,3 +15,11 @@ def get_fundamentals(ticker, api_key):
     r = requests.get(url)
 
     return r.json()
+
+def get_eod_prices(ticker, api_key):
+    url = f"https://eodhistoricaldata.com/api/eod/MCD.US?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX&period=d"
+    r = requests.get(url)
+
+    df = pd.read_csv( io.StringIO(r.text) )
+
+    return df

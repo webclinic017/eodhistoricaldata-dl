@@ -26,12 +26,15 @@ print(tracker.shape)
 
 # get data for each ticker
 for index, row in tracker.iterrows():
-    ticker = row['Code']
+    ticker = row['Code'] + ".US"
+    
+    try:
+        os.mkdir(f"output/{index}")
+    except:
+        pass # already exists
 
     if row['retrieved_fundamentals'] == 0:
         fundamentals = endpoints.get_fundamentals(ticker, api_key)
-
-        os.mkdir(f"output/{index}")
 
         with open(f"output/{index}/fundamentals.json", "w") as f:
             json.dump(fundamentals, f)
@@ -39,4 +42,5 @@ for index, row in tracker.iterrows():
         tracker.at[index, 'retrieved_fundamentals'] = 1
 
     if row['retrieved_price'] == 0:
-        pass
+        eod_prices = endpoints.get_eod_prices(ticker, api_key)
+        eod_prices.to_csv(f"output/{index}/eod_prices.csv", index=False)
