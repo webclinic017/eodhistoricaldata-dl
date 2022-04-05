@@ -52,46 +52,42 @@ except:
     tracker = pd.read_csv("output/tickers.csv")
     tracker = tracker[ tracker.Type == "Common Stock" ] 
     tracker = tracker[["Code", "Name"]] 
-    tracker['retrieved_fundamentals'] = 0
-    tracker['retrieved_price'] = 0
+    tracker["retrieved_fundamentals"] = 0
+    tracker["retrieved_price"] = 0
     tracker = tracker.reset_index(drop=True)
 
     tracker.to_csv("output/tracker.csv", index=False)
 
 # get data for each ticker
-while usage["count"] < 10000:
+for index, row in tracker.iterrows():
+    ticker = row["Code"] + ".US"
+    
+    try:
+        os.mkdir(f"output/{index}")
+    except:
+        pass # already exists
+    
+    if row["retrieved_fundamentals"] == 0 and usage["count"] < 10000:
+        fundamentals = endpoints.get_fundamentals(ticker, api_key)
 
-    for index, row in tracker.iterrows():
-        ticker = row['Code'] + ".US"
+        with open(f"output/{index}/fundamentals.json", "w") as f:
+            json.dump(fundamentals, f)
+
+        tracker.at[index, "retrieved_fundamentals"] = 1       
+        tracker.to_csv("output/tracker.csv", index=False)
         
-        try:
-            os.mkdir(f"output/{index}")
-        except:
-            pass # already exists
+        usage["count"] += 1
+        with open("output/usage.json", "w") as f:
+            json.dump(usage, f)
+
+    
+    if row["retrieved_price"] == 0 and usage["count"] < 10000:
+        eod_prices = endpoints.get_eod_prices(ticker, api_key)
+        eod_prices.to_csv(f"output/{index}/prices.csv", index=False)
+
+        tracker.at[index, "retrieved_price"] = 1
+        tracker.to_csv("output/tracker.csv", index=False)
         
-        if row['retrieved_fundamentals'] == 0:
-            fundamentals = endpoints.get_fundamentals(ticker, api_key)
-
-            with open(f"output/{index}/fundamentals.json", "w") as f:
-                json.dump(fundamentals, f)
-
-            tracker.at[index, 'retrieved_fundamentals'] = 1
-            usage["count"] += 1
-            
-            tracker.to_csv("output/tracker.csv", index=False)
-        
-            with open("output/usage.json", "w") as f:
-                json.dump(usage, f)
-
-        
-        if row['retrieved_price'] == 0:
-            eod_prices = endpoints.get_eod_prices(ticker, api_key)
-            eod_prices.to_csv(f"output/{index}/prices.csv", index=False)
-
-            tracker.at[index, 'retrieved_price'] = 1
-            usage["count"] += 1
-
-            tracker.to_csv("output/tracker.csv", index=False)
-
-            with open("output/usage.json", "w") as f:
-                json.dump(usage, f)
+        usage["count"] += 1
+        with open("output/usage.json", "w") as f:
+            json.dump(usage, f)
