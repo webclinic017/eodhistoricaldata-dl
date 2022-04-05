@@ -44,3 +44,7 @@ for index, row in tracker.iterrows():
     if row['retrieved_price'] == 0:
         eod_prices = endpoints.get_eod_prices(ticker, api_key)
         eod_prices.to_csv(f"output/{index}/eod_prices.csv", index=False)
+
+        tracker.at[index, 'retrieved_price'] = 1
+    
+    tracker.to_csv("output/tracker.csv", index=False)
