@@ -7,7 +7,7 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 api_key = config["API_KEY"]
-api_limit = 10000
+api_limit = 5
 
 try:
     os.mkdir(f"output")
@@ -24,6 +24,10 @@ try:
     if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] > api_limit:
         print("Already downloaded today")
         exit()
+    else:
+        # reset counter
+        now = datetime.datetime.now()
+        usage = {"dt": str(now), "count": 0}
 except:
     # First time we are running this script
     now = datetime.datetime.now()
