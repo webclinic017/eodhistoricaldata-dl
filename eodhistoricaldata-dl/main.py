@@ -1,3 +1,4 @@
+import os
 import json
 import pandas as pd
 from dotenv import dotenv_values
@@ -23,5 +24,19 @@ tracker.to_csv("output/tracker.csv", index=False)
 print(tracker.head())
 print(tracker.shape)
 
-with open("output/fundamentals.json", "w") as f:
-    json.dump(r.json(), f)
+# get data for each ticker
+for index, row in tracker.iterrows():
+    ticker = row['Code']
+
+    if row['retrieved_fundamentals'] == 0:
+        fundamentals = endpoints.get_fundamentals(ticker, api_key)
+
+        os.mkdir(f"output/{index}")
+
+        with open(f"output/{index}/fundamentals.json", "w") as f:
+            json.dump(fundamentals, f)
+
+        tracker.at[index, 'retrieved_fundamentals'] = 1
+
+    if row['retrieved_price'] == 0:
+        pass
