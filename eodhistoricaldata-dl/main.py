@@ -7,12 +7,14 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 api_key = config["API_KEY"]
-api_limit = 5
+api_limit = 10
 
 try:
     os.mkdir(f"output")
 except:
     pass # already exists
+
+print("🔎 Looking for an existing download.")
 
 try:
     # If we are in the middle of another download
@@ -21,15 +23,19 @@ try:
     
     last_request = datetime.datetime.strptime(usage["dt"], "%Y-%m-%d %H:%M:%S.%f")
     
-    if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] > api_limit:
-        print("Already downloaded today")
-        exit()
+    if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] >= api_limit:
+        print("🔴 Reached API limit for today. [1]")
+        #quit()
     else:
         # reset counter
+        print("Resuming download")
+
         now = datetime.datetime.now()
         usage = {"dt": str(now), "count": 0}
 except:
     # First time we are running this script
+    print("No existing download found, starting a new one.")
+
     now = datetime.datetime.now()
     usage = {"dt": str(now), "count": 0}
 
@@ -42,6 +48,8 @@ try:
         pass
 except:
     # get a list of all tickers
+    print("📃 Downloading tickers list.")
+
     exchange_code = "US"
     tickers_df = endpoints.get_all_tickers(exchange_code, api_key)
     tickers_df.to_csv("output/tickers.csv", index=False)
@@ -96,3 +104,7 @@ for index, row in tracker.iterrows():
         usage["count"] += 1
         with open("output/usage.json", "w") as f:
             json.dump(usage, f)
+
+    if usage["count"] >= api_limit:
+        print("🔴 Reached API limit for today. [2]")
+        break
