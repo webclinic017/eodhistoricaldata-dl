@@ -31,8 +31,6 @@ except:
     with open("output/usage.json", "w") as f:
         json.dump(usage, f)
 
-total_requests = usage["count"]
-
 # see if tickers.csv exists in output
 try:
     with open("output/tickers.csv", "r") as f:
@@ -43,15 +41,22 @@ except:
     tickers_df = endpoints.get_all_tickers(exchange_code, api_key)
     tickers_df.to_csv("output/tickers.csv", index=False)
 
-# create a tracking file
-tracker = pd.read_csv("output/tickers.csv")
-tracker = tracker[ tracker.Type == "Common Stock" ] 
-tracker = tracker[["Code", "Name"]] 
-tracker['retrieved_fundamentals'] = 0
-tracker['retrieved_price'] = 0
-tracker = tracker.reset_index(drop=True)
+# see if tracker.csv exists in output
+try:
+    with open("output/tracker.csv", "r") as f:
+        pass
 
-tracker.to_csv("output/tracker.csv", index=False)
+    tracker = pd.read_csv("output/tracker.csv")
+except:
+    # create a tracking file
+    tracker = pd.read_csv("output/tickers.csv")
+    tracker = tracker[ tracker.Type == "Common Stock" ] 
+    tracker = tracker[["Code", "Name"]] 
+    tracker['retrieved_fundamentals'] = 0
+    tracker['retrieved_price'] = 0
+    tracker = tracker.reset_index(drop=True)
+
+    tracker.to_csv("output/tracker.csv", index=False)
 
 # get data for each ticker
 while usage["count"] < 10000:
