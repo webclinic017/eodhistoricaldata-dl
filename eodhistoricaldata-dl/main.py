@@ -3,11 +3,12 @@ import json
 import datetime
 import endpoints
 import pandas as pd
+from tqdm import tqdm
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 api_key = config["API_KEY"]
-api_limit = 10
+api_limit = 15
 
 try:
     os.mkdir(f"output")
@@ -24,8 +25,8 @@ try:
     last_request = datetime.datetime.strptime(usage["dt"], "%Y-%m-%d %H:%M:%S.%f")
     
     if (datetime.datetime.now() - last_request).total_seconds() < 86400 and usage["count"] >= api_limit:
-        print("🔴 Reached API limit for today. [1]")
-        #quit()
+        # Don't need to do anything, the api_limit with trigger a break in the loop below.
+        pass
     else:
         # reset counter
         print("Resuming download")
@@ -72,7 +73,7 @@ except:
     tracker.to_csv("output/tracker.csv", index=False)
 
 # get data for each ticker
-for index, row in tracker.iterrows():
+for index, row in tqdm(tracker.iterrows(), total=tracker.shape[0]):
     ticker = row["Code"] + ".US"
     
     try:
@@ -106,5 +107,5 @@ for index, row in tracker.iterrows():
             json.dump(usage, f)
 
     if usage["count"] >= api_limit:
-        print("🔴 Reached API limit for today. [2]")
+        print("🔴 Reached API limit for today.")
         break
