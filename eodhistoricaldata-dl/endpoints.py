@@ -8,7 +8,7 @@ def get_all_tickers(exchange_code, api_key):
 
     df = pd.read_csv( io.StringIO(r.text) )
 
-    df.to_csv("output/tickers.csv", index=False)
+    return df
 
 def get_fundamentals(ticker, api_key):
     url = f"https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX"
